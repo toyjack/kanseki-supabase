@@ -1,22 +1,27 @@
 # AGENTS.md
 
-## General Rules
-- Always read files in /specs before implementing
-- Never implement without acceptance criteria
-- Code should be simple and readable
-- Avoid overengineering
+## 一般ルール
+- 実装前に必ず `/specs` 配下のファイルを読む
+- 受け入れ基準がない状態で実装しない
+- コードは単純で読みやすく保つ
+- 過剰な設計を避ける
 
-## Required Workflow
-1. Read the specs in the /specs directory
-2. Generate tasks.md if it does not exist
-3. Implement based on the tasks
-4. Create automated tests
-5. Ensure all acceptance criteria pass
+## 言語ポリシー
+- ユーザーとの会話には中国語のみを使用する
+- コード内のコメント、README、仕様書、タスク、その他のリポジトリ文書には日本語を使用する
+- ライブラリ名、API 名、識別子、コマンドなど、技術上そのまま表記すべきものは原語を維持してよい
 
-## Testing
-- Prioritize coverage of acceptance criteria
-- Tests should be clear and straightforward
+## 必須ワークフロー
+1. `/specs` ディレクトリの仕様を読む
+2. `tasks.md` が存在しない場合は作成する
+3. タスクに基づいて実装する
+4. 自動テストを作成する
+5. すべての受け入れ基準を満たすことを確認する
 
-## Constraints
-- Do not invent requirements that are not described
-- Do not change behavior without updating the spec
+## テスト
+- 受け入れ基準の検証を優先する
+- テストは明確かつ簡潔に記述する
+
+## 制約
+- 記載されていない要件を創作しない
+- 仕様を更新せずに動作を変更しない

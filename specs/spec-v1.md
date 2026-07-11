@@ -15,6 +15,7 @@
 ## 2. 前提条件・制約
 
 - **少人数（1〜2名）による長期保守**が前提。運用ミドルウェアの種類を増やさないこと、JavaScript/TypeScriptに統一することを優先する
+- JavaScriptランタイム、パッケージ管理、スクリプト実行、テストには**Bun**を使用する。`bun.lock`をリポジトリで管理し、npm・pnpm・Yarnのロックファイルを併用しない
 - ホスティングは**学内オンプレミス、単独のLinuxサーバー**（`kanseki-app`とは別サーバー）
 - self-hosted Supabase（`supabase/postgres`公式Dockerイメージ利用を想定）
 - タイムライン: 緊急、1年以内目途（SPARC/OpenText Patの障害リスクのため）
@@ -221,3 +222,11 @@ CREATE INDEX pgroonga_records_ti_index ON records USING pgroonga (ti) WITH (norm
 - バックアップ・リストア方針は**未検討**。実装フェーズで別途設計が必要
 - 運用ダッシュボードの実装場所（本サーバー内か`kanseki-app`側か）
 - REINDEX所要時間の実測、および`variant_characters`更新の運用フロー（頻度・承認プロセス）
+
+## 9. 開発基盤の受け入れ基準
+
+- `bun install`で依存関係を再現できる
+- `bun test`で自動テストを実行できる
+- `bun run lint`および`bun run typecheck`で静的検査を実行できる
+- npm・pnpm・Yarnのロックファイルが存在しない
+- READMEを含むリポジトリ文書とコードコメントは日本語で記述し、開発コマンドはBunに統一する

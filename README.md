@@ -23,8 +23,13 @@ bun run typecheck
 ## ディレクトリ構成
 
 - `src/etl/`: レガシーデータの復号・解析・正規化処理
+- `supabase/migrations/`: PostgreSQL・PGroongaのマイグレーション
 - `tests/`: 受け入れ基準に対応する自動テスト
 - `specs/`: 要件と設計の基準文書
 - `tasks.md`: 実装状況と受け入れ基準
 
 実装時は先に`specs/`を確認し、未決定事項を推測で補わないでください。
+
+## データベース
+
+`supabase/migrations/`のSQLはself-hosted Supabase向けです。実環境へ適用する前に、接続先が検証環境であることと、PGroongaが利用可能であることを確認してください。

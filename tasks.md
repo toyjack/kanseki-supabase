@@ -57,7 +57,10 @@
 
 ## フェーズ4: 同期・検索・運用
 
-- [ ] `rsync --itemize-changes`の結果から差分対象を抽出する
+- [x] `rsync --itemize-changes`の結果から`.dat`差分対象を抽出する
+- [x] シェルを介さないrsync実行処理を実装する
+- [ ] rsyncソースとの接続を検証する
+- [ ] 機関・コレクション対応付けを実装する
 - [x] UniVariantsとOpenCC単字データの統合処理を実装する
 - [ ] UniVariantsとOpenCCの入力ファイルパーサーを実装する
 - [x] 同一文字の競合時にUniVariantsを優先する

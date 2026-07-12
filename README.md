@@ -25,6 +25,7 @@ bun run typecheck
 ## ディレクトリ構成
 
 - `src/etl/`: レガシーデータの復号・解析・正規化処理
+- `src/sync/`: rsyncの差分抽出処理
 - `supabase/migrations/`: PostgreSQL・PGroongaのマイグレーション
 - `tests/`: 受け入れ基準に対応する自動テスト
 - `specs/`: 要件と設計の基準文書
@@ -37,3 +38,7 @@ bun run typecheck
 `supabase/migrations/`のSQLはself-hosted Supabase向けです。実環境へ適用する前に、接続先が検証環境であることと、PGroongaが利用可能であることを確認してください。
 
 接続情報は`.env.example`を参考に`.env`へ保存します。`.env`には認証情報が含まれるため、Gitへ追加しないでください。
+
+rsyncのローカルミラーはリポジトリ内の`data/rsync-mirror/`を使用します。このディレクトリはGitの追跡対象外です。日次処理はリポジトリのルートを作業ディレクトリとして実行してください。
+
+`RSYNC_SOURCE`には`FA*`ディレクトリを直下に持つデータルートを指定します。同期対象は`FA*/organization`と`FA*/tagged*/*.dat`だけで、画像や生データは除外します。

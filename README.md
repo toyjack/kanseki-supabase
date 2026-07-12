@@ -33,3 +33,5 @@ bun run typecheck
 ## データベース
 
 `supabase/migrations/`のSQLはself-hosted Supabase向けです。実環境へ適用する前に、接続先が検証環境であることと、PGroongaが利用可能であることを確認してください。
+
+接続情報は`.env.example`を参考に`.env`へ保存します。`.env`には認証情報が含まれるため、Gitへ追加しないでください。

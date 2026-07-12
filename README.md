@@ -12,11 +12,13 @@
 ```sh
 bun install
 bun test
+bun run test:database
 bun run lint
 bun run typecheck
 ```
 
 - `bun test`: 自動テストを実行します。
+- `bun run test:database`: `.env`の接続先に対し、ロールバックされる結合テストを実行します。
 - `bun run lint`: Biomeでコードと設定を検査します。
 - `bun run typecheck`: TypeScriptの型を検査します。
 

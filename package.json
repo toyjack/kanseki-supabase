@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "bun test",
+    "test:database": "RUN_DATABASE_TESTS=1 bun test tests/database-import.integration.test.ts",
     "lint": "biome check .",
     "format": "biome format --write .",
     "typecheck": "tsc --noEmit"
@@ -13,5 +14,8 @@
     "@biomejs/biome": "^2.1.2",
     "@types/bun": "^1.2.18",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "postgres": "^3.4.9"
   }
 }

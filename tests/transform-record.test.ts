@@ -39,7 +39,6 @@ describe("transformTaggedRecord", () => {
     const sourceMtime = new Date("2026-07-11T00:00:00Z");
     const record = transformTaggedRecord(fields, {
       faCode: "FA001379",
-      collectionId: null,
       sourceMtime,
     });
 
@@ -48,8 +47,21 @@ describe("transformTaggedRecord", () => {
     expect(record.tiKey).toBe("尚書 註疏");
     expect(record.tiPinyin).toBe("SHANG SHU");
     expect(record.fi).toBe("經部");
+    expect(record.collectionName).toBeNull();
     expect(record.authors[0]?.nameText).toBe("孔安國");
     expect(record.sourceMtime).toBe(sourceMtime);
+  });
+
+  test("明示的なseタグを文庫名として扱う", () => {
+    const fields = parseTaggedDat(
+      "<nu>0039010</nu><ti>尚書,二十卷</ti><se>金谷文庫</se>",
+    );
+    const record = transformTaggedRecord(fields, {
+      faCode: "FA001379",
+      sourceMtime: new Date("2026-07-11T00:00:00Z"),
+    });
+
+    expect(record.collectionName).toBe("金谷文庫");
   });
 
   test("必須タグがないレコードを拒否する", () => {
@@ -57,7 +69,6 @@ describe("transformTaggedRecord", () => {
     expect(() =>
       transformTaggedRecord(fields, {
         faCode: "FA001379",
-        collectionId: null,
         sourceMtime: new Date(),
       }),
     ).toThrow(InvalidTaggedRecordError);

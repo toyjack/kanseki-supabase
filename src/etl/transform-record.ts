@@ -11,7 +11,7 @@ export interface ImportedAuthor {
 
 export interface ImportedRecord {
   faCode: string;
-  collectionId: string | null;
+  collectionName: string | null;
   nu: string;
   oyNu: string | null;
   ti: string;
@@ -41,7 +41,6 @@ export interface ImportedRecord {
 
 export interface RecordContext {
   faCode: string;
-  collectionId: string | null;
   sourceMtime: Date;
 }
 
@@ -113,7 +112,7 @@ export function transformTaggedRecord(
 
   return {
     faCode: context.faCode,
-    collectionId: context.collectionId,
+    collectionName: first(fields, "se"),
     nu,
     oyNu: first(fields, "oy"),
     ti,

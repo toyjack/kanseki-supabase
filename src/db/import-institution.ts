@@ -89,6 +89,11 @@ export async function importInstitutionInTransaction(
     }
 
     const workId = await getOrCreateWork(sql, record.tiKey);
+    const collectionId = await getOrCreateCollection(
+      sql,
+      record.faCode,
+      record.collectionName,
+    );
     const [stored] = await sql<{ id: string }[]>`
       INSERT INTO records (
         fa_code, collection_id, oy_record_id, work_id, nu,
@@ -96,7 +101,7 @@ export async function importInstitutionInTransaction(
         fi, sf, tg, ki, tp, yr, pb, ed, sd, vi, si, rn, co, no,
         source_mtime, imported_at, deleted_at
       ) VALUES (
-        ${record.faCode}, ${record.collectionId}, NULL, ${workId}, ${record.nu},
+        ${record.faCode}, ${collectionId}, NULL, ${workId}, ${record.nu},
         ${record.ti}, ${record.tiKey}, ${record.tiPinyin}, ${record.st},
         ${record.stPinyin}, ${record.pt}, ${record.ptPinyin}, ${record.fi},
         ${record.sf}, ${record.tg}, ${record.ki}, ${record.tp}, ${record.yr},
@@ -139,7 +144,7 @@ export async function importInstitutionInTransaction(
     storedRecords.push({
       id: stored.id,
       faCode: record.faCode,
-      collectionId: record.collectionId,
+      collectionId,
       nu: record.nu,
       oyNu: record.oyNu,
     });
@@ -176,6 +181,27 @@ export async function importInstitutionInTransaction(
       ({ recordId, message }) => `${recordId}: ${message}`,
     ),
   };
+}
+
+/** 明示的な<se>タグを持つ文庫のみをCOLLECTIONSとしてマスタ化する。 */
+async function getOrCreateCollection(
+  sql: postgres.TransactionSql,
+  faCode: string,
+  name: string | null,
+): Promise<string | null> {
+  if (!name) return null;
+
+  const [existing] = await sql<{ id: string }[]>`
+    SELECT id FROM collections WHERE fa_code = ${faCode} AND name = ${name}
+  `;
+  if (existing) return existing.id;
+
+  const [created] = await sql<{ id: string }[]>`
+    INSERT INTO collections (fa_code, name) VALUES (${faCode}, ${name})
+    RETURNING id
+  `;
+  if (!created) throw new Error(`COLLECTIONSを作成できませんでした: ${name}`);
+  return created.id;
 }
 
 async function getOrCreateWork(

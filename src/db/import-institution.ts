@@ -3,7 +3,6 @@ import { resolveParentLinks } from "../etl/resolve-parent-links";
 import type { ImportedRecord } from "../etl/transform-record";
 
 export interface DeletedRecord {
-  collectionId: string | null;
   nu: string;
 }
 
@@ -160,26 +159,39 @@ export async function importInstitutionInTransaction(
   }
 
   let deletedCount = 0;
+  const deletionWarnings: string[] = [];
   for (const deleted of input.deletedRecords) {
-    const rows = await sql`
-      UPDATE records
-      SET deleted_at = NOW(), imported_at = NOW()
-      WHERE fa_code = ${input.faCode}
-        AND collection_id IS NOT DISTINCT FROM ${deleted.collectionId}
-        AND nu = ${deleted.nu}
-        AND deleted_at IS NULL
-      RETURNING id
+    const candidates = await sql<{ id: string }[]>`
+      SELECT id FROM records
+      WHERE fa_code = ${input.faCode} AND nu = ${deleted.nu} AND deleted_at IS NULL
     `;
-    deletedCount += rows.length;
+    if (candidates.length === 0) continue;
+    if (candidates.length > 1) {
+      deletionWarnings.push(
+        `nu=${deleted.nu}は複数のコレクションに存在するため削除をスキップしました`,
+      );
+      continue;
+    }
+
+    const [candidate] = candidates;
+    if (!candidate) continue;
+    await sql`
+      UPDATE records SET deleted_at = NOW(), imported_at = NOW()
+      WHERE id = ${candidate.id}
+    `;
+    deletedCount += 1;
   }
 
   return {
     faCode: input.faCode,
     importedCount: storedRecords.length,
     deletedCount,
-    warnings: resolution.warnings.map(
-      ({ recordId, message }) => `${recordId}: ${message}`,
-    ),
+    warnings: [
+      ...resolution.warnings.map(
+        ({ recordId, message }) => `${recordId}: ${message}`,
+      ),
+      ...deletionWarnings,
+    ],
   };
 }
 

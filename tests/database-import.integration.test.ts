@@ -69,7 +69,7 @@ databaseTest(
             faCode,
             organizationName: "結合テスト機関",
             records: [],
-            deletedRecords: [{ collectionId: null, nu: "2" }],
+            deletedRecords: [{ nu: "2" }],
           });
           expect(deleted.deletedCount).toBe(1);
 
@@ -139,6 +139,59 @@ databaseTest(
             WHERE fa_code = ${faCode} AND nu = '3'
           `;
           expect(withoutCollectionRow?.collection_id).toBeNull();
+
+          throw new Error("ROLLBACK_DATABASE_TEST");
+        }),
+      ).rejects.toThrow("ROLLBACK_DATABASE_TEST");
+    } finally {
+      await sql.end();
+    }
+  },
+);
+
+databaseTest(
+  "コレクションをまたいでnuが衝突する削除は警告してスキップする",
+  async () => {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) throw new Error("DATABASE_URLが設定されていません");
+
+    const sql = createDatabaseClient(databaseUrl);
+    const faCode = `TEST${crypto.randomUUID().slice(0, 8)}`;
+    const sourceMtime = new Date("2026-07-12T00:00:00Z");
+    const inCollection = transformTaggedRecord(
+      parseTaggedDat("<nu>1</nu><ti>尚書,十卷</ti><se>金谷文庫</se>"),
+      { faCode, sourceMtime },
+    );
+    const outsideCollection = transformTaggedRecord(
+      parseTaggedDat("<nu>1</nu><ti>周易,十卷</ti>"),
+      { faCode, sourceMtime },
+    );
+
+    try {
+      await expect(
+        sql.begin(async (transaction) => {
+          await importInstitutionInTransaction(transaction, {
+            faCode,
+            organizationName: "結合テスト機関",
+            records: [inCollection, outsideCollection],
+            deletedRecords: [],
+          });
+
+          const result = await importInstitutionInTransaction(transaction, {
+            faCode,
+            organizationName: "結合テスト機関",
+            records: [],
+            deletedRecords: [{ nu: "1" }],
+          });
+
+          expect(result.deletedCount).toBe(0);
+          expect(result.warnings[0]).toContain("複数のコレクション");
+
+          const remaining = await transaction<{ count: number }[]>`
+            SELECT count(*)::int AS count FROM records
+            WHERE fa_code = ${faCode} AND nu = '1' AND deleted_at IS NULL
+          `;
+          expect(remaining[0]?.count).toBe(2);
 
           throw new Error("ROLLBACK_DATABASE_TEST");
         }),
